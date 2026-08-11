@@ -1,6 +1,7 @@
 # Python-generated files
 __pycache__/
 *.py[oc]
+.pytest_cache/
 build/
 dist/
 wheels/
@@ -8,3 +9,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Project data and experiment artifacts
+data/raw/*
+data/processed/*
+mlruns/
