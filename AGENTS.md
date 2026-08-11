@@ -3,6 +3,55 @@
 Guidance for any coding agent (Codex, etc.) working in this repository.
 Read this file in full before planning or writing any code.
 
+## Progress Checklist
+
+Check items off as each phase is actually implemented and tested in the
+repo — not when merely planned. Keep this section up to date; it's the
+fastest way to answer "where are we?" without re-reading the whole roadmap.
+
+- [x] **Phase 0 — Repo & Environment Setup**
+- [x] **Phase 1 — Data Ingestion (FR-DM-01)**
+- [x] **Phase 2 — Data Cleaning (FR-DM-02)**
+- [ ] **Phase 3 — Pool Construction (FR-DM-03)** ⚠️ sign-off required first
+  - [ ] Pool methodology validated with supervisor
+  - [ ] Implementation + reproducibility tests
+- [ ] **Phase 4 — Feature Engineering (FR-DM-04)**
+- [ ] **Phase 5 — Temporal Stream Simulation (FR-DM-05)**
+- [ ] **Phase 6 — Dataset Versioning (FR-DM-06)**
+- [ ] **Phase 7 — Risk Modeling**
+  - [ ] FR-RM-01 contract-level claim probability
+  - [ ] FR-RM-02 pool-level aggregated score
+  - [ ] FR-RM-03 anomaly / fraud-like detection
+  - [ ] FR-RM-05 performance/interpretability trade-off documented
+  - [ ] FR-RM-06 probability calibration
+  - [ ] FR-RM-07 Gini / AUC / calibration error tracked
+- [ ] **Phase 8 — Continual Learning & Drift Detection** ⚠️ threshold sign-off required
+  - [ ] FR-CL-01 drift detector implemented
+  - [ ] FR-CL-02 data drift vs. concept drift distinguished
+  - [ ] FR-CL-03 incremental/continual learning strategy
+  - [ ] FR-CL-04 sliding-window retraining
+  - [ ] FR-CL-05 catastrophic forgetting mitigation
+  - [ ] FR-CL-06 automated drift-triggered retraining thresholds
+- [ ] **Phase 9 — MLOps Pipeline**
+  - [ ] FR-ML-01 MLflow tracking
+  - [ ] FR-ML-02 model registry
+  - [ ] FR-ML-03 DVC artifact versioning
+  - [ ] FR-ML-04 retraining orchestration
+  - [ ] FR-ML-05 candidate validation gate
+  - [ ] FR-ML-06 Kafka streaming simulation (Could — optional)
+- [ ] **Phase 10 — Deployment**
+  - [ ] FR-DP-01 REST API endpoints
+  - [ ] FR-DP-02 Dockerized
+  - [ ] FR-DP-03 Kubernetes (Could — optional)
+  - [ ] FR-DP-04 CI/CD
+  - [ ] FR-DP-05 Streamlit demo
+- [ ] **Phase 11 — Monitoring & Traceability**
+  - [ ] FR-MT-01 Grafana dashboards
+  - [ ] FR-MT-02 Prometheus metrics
+  - [ ] FR-MT-03 alerting
+  - [ ] FR-MT-04 full traceability
+  - [ ] FR-MT-05 retraining cycle logging
+
 ## 1. Project Overview
 
 This repo implements **Adaptive Risk Management System: MLOps and Continual
@@ -71,7 +120,8 @@ adaptive-p2p-risk/
 ├── notebooks/               # exploration only — nothing here is a dependency of src/
 ├── demo/                    # FR-DP-05: Streamlit app
 ├── .github/workflows/        # FR-DP-04: CI/CD
-├── requirements.txt
+├── pyproject.toml
+├── uv.lock
 ├── AGENTS.md
 └── README.md
 ```
@@ -107,10 +157,12 @@ plan first, get it reviewed, then code).
 ### Phase 0 — Repo & Environment Setup
 - Initialize repo structure (Section 3), `.gitignore` (must exclude
   `data/raw/*`, `data/processed/*`, `__pycache__`, `.pytest_cache`,
-  `mlruns/`), `requirements.txt`, CI skeleton (lint + test on push).
-- **Definition of done:** `pip install -r requirements.txt && pytest` runs
-  clean on an empty repo (no tests yet is fine at this exact sub-step, but
-  the harness must work).
+  `mlruns/`), uv project metadata (`pyproject.toml`, `uv.lock`), and the
+  initial test harness.
+- **Definition of done:** `uv run pytest` runs clean through the project
+  virtual environment. At this repo's current Phase 0 level, a small smoke
+  test is enough to prove the harness works; real pipeline tests begin in
+  Phase 1.
 
 ### Phase 1 — Data Ingestion — FR-DM-01 (Must)
 - Load both CSVs, validate schema (expected columns, non-empty, no
