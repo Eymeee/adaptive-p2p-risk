@@ -5,7 +5,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.data.ingestion import DataIngestionError, load_raw_data
+from src.data import ingestion
+from src.data.ingestion import DataIngestionError, load_default_raw_data, load_raw_data # pyrefly: ignore
 
 
 def test_load_raw_data_returns_frames_and_report(tmp_path: Path) -> None:
@@ -23,6 +24,23 @@ def test_load_raw_data_returns_frames_and_report(tmp_path: Path) -> None:
     assert result.report.frequency_rows == 2
     assert result.report.severity_rows == 2
     assert result.report.duplicate_frequency_idpol_count == 0
+
+
+def test_load_default_raw_data_uses_project_raw_paths(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[Path, Path]] = []
+
+    def fake_load_raw_data(frequency_path: Path, severity_path: Path) -> object:
+        calls.append((frequency_path, severity_path))
+        return object()
+
+    monkeypatch.setattr(ingestion, "load_raw_data", fake_load_raw_data)
+
+    result = load_default_raw_data()
+
+    assert result is not None
+    assert calls == [(ingestion.DEFAULT_FREQUENCY_PATH, ingestion.DEFAULT_SEVERITY_PATH)]
 
 
 def test_load_raw_data_raises_for_missing_file(tmp_path: Path) -> None:

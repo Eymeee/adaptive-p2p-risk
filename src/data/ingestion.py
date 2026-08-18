@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import argparse
+import json
+from dataclasses import asdict
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -20,6 +23,8 @@ FREQUENCY_COLUMNS: tuple[str, ...] = (
     "Region",
 )
 SEVERITY_COLUMNS: tuple[str, ...] = ("IDpol", "ClaimAmount")
+DEFAULT_FREQUENCY_PATH = Path("data/raw/freMTPL2freq.csv")
+DEFAULT_SEVERITY_PATH = Path("data/raw/freMTPL2sev.csv")
 
 
 class DataIngestionError(ValueError):
@@ -67,6 +72,11 @@ def load_raw_data(frequency_path: Path | str, severity_path: Path | str) -> Inge
     return IngestionResult(frequency=frequency, severity=severity, report=report)
 
 
+def load_default_raw_data() -> IngestionResult:
+    """Load the project-standard raw freMTPL2 files from data/raw."""
+    return load_raw_data(DEFAULT_FREQUENCY_PATH, DEFAULT_SEVERITY_PATH)
+
+
 def _read_csv(path: Path, table_name: str) -> pd.DataFrame:
     if not path.exists():
         raise DataIngestionError(f"{table_name} CSV does not exist: {path}")
@@ -107,3 +117,32 @@ def _validate_required_columns(
 def _validate_non_empty(frame: pd.DataFrame, table_name: str) -> None:
     if frame.empty:
         raise DataIngestionError(f"{table_name} CSV has headers but no rows")
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Load and validate the raw freMTPL2 frequency and severity CSVs."
+    )
+    parser.add_argument(
+        "--frequency-path",
+        type=Path,
+        default=DEFAULT_FREQUENCY_PATH,
+        help=f"Frequency CSV path. Defaults to {DEFAULT_FREQUENCY_PATH}.",
+    )
+    parser.add_argument(
+        "--severity-path",
+        type=Path,
+        default=DEFAULT_SEVERITY_PATH,
+        help=f"Severity CSV path. Defaults to {DEFAULT_SEVERITY_PATH}.",
+    )
+    return parser
+
+
+def main() -> None:
+    args = _build_parser().parse_args()
+    result = load_raw_data(args.frequency_path, args.severity_path)
+    print(json.dumps(asdict(result.report), indent=2, default=str))
+
+
+if __name__ == "__main__":
+    main()

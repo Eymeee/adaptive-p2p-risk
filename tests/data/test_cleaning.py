@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pandas as pd
 
-from src.data.cleaning import CLAIMNB_CAP, EXPOSURE_CAP, clean_raw_data
+from src.data.cleaning import CLAIMNB_CAP, EXPOSURE_CAP, clean_raw_data, write_cleaned_data # pyrefly: ignore
 
 
 def test_clean_raw_data_resolves_documented_quality_issues() -> None:
@@ -74,3 +77,35 @@ def test_clean_raw_data_reconciles_claimnb_to_zero_for_policy_without_observed_c
     assert result.severity.empty
     assert result.report.unmatched_severity_rows_dropped == 1
     assert result.report.claimnb_mismatched_policies == 1
+
+
+def test_write_cleaned_data_persists_csvs_and_cleaning_report(tmp_path: Path) -> None:
+    frequency = pd.DataFrame(
+        {
+            "IDpol": [1],
+            "ClaimNb": [0],
+            "Exposure": [0.7],
+            "VehBrand": ["B1"],
+            "VehGas": ["Regular"],
+            "Area": ["A"],
+            "Region": ["R1"],
+        }
+    )
+    severity = pd.DataFrame({"IDpol": [1], "ClaimAmount": [12.0]})
+    result = clean_raw_data(frequency, severity)
+
+    paths = write_cleaned_data(result, tmp_path)
+
+    assert paths.frequency_path.exists()
+    assert paths.severity_path.exists()
+    assert paths.cleaning_report_path.exists()
+    assert not paths.ingestion_report_path.exists()
+
+    written_frequency = pd.read_csv(paths.frequency_path)
+    written_severity = pd.read_csv(paths.severity_path)
+    written_report = json.loads(paths.cleaning_report_path.read_text(encoding="utf-8"))
+
+    assert written_frequency["ClaimNb_declared"].tolist() == [0]
+    assert written_severity["ClaimAmount"].tolist() == [12.0]
+    assert written_report["frequency_rows_after"] == 1
+    assert written_report["severity_rows_after"] == 1

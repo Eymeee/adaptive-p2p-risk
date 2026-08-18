@@ -1,12 +1,26 @@
 from __future__ import annotations
 
+import argparse
+import json
+from dataclasses import asdict
 from dataclasses import dataclass
+from pathlib import Path
 
 import pandas as pd
+
+from src.data.ingestion import DEFAULT_FREQUENCY_PATH
+from src.data.ingestion import DEFAULT_SEVERITY_PATH
+from src.data.ingestion import IngestionReport
+from src.data.ingestion import load_raw_data
 
 CATEGORICAL_COLUMNS: tuple[str, ...] = ("VehBrand", "VehGas", "Area", "Region")
 EXPOSURE_CAP = 1.0
 CLAIMNB_CAP = 4
+DEFAULT_PROCESSED_DIR = Path("data/processed")
+DEFAULT_CLEANED_FREQUENCY_FILENAME = "freMTPL2freq_cleaned.csv"
+DEFAULT_CLEANED_SEVERITY_FILENAME = "freMTPL2sev_cleaned.csv"
+DEFAULT_INGESTION_REPORT_FILENAME = "ingestion_report.json"
+DEFAULT_CLEANING_REPORT_FILENAME = "cleaning_report.json"
 
 
 @dataclass(frozen=True)
@@ -29,6 +43,14 @@ class CleaningResult:
     frequency: pd.DataFrame
     severity: pd.DataFrame
     report: CleaningReport
+
+
+@dataclass(frozen=True)
+class ProcessedDataPaths:
+    frequency_path: Path
+    severity_path: Path
+    ingestion_report_path: Path
+    cleaning_report_path: Path
 
 
 def clean_raw_data(frequency: pd.DataFrame, severity: pd.DataFrame) -> CleaningResult:
@@ -81,3 +103,81 @@ def clean_raw_data(frequency: pd.DataFrame, severity: pd.DataFrame) -> CleaningR
         severity=cleaned_severity,
         report=report,
     )
+
+
+def write_cleaned_data(
+    cleaning_result: CleaningResult,
+    output_dir: Path | str = DEFAULT_PROCESSED_DIR,
+    ingestion_report: IngestionReport | None = None,
+) -> ProcessedDataPaths:
+    """Persist cleaned datasets and audit reports as the handoff to later phases."""
+    processed_dir = Path(output_dir)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    frequency_path = processed_dir / DEFAULT_CLEANED_FREQUENCY_FILENAME
+    severity_path = processed_dir / DEFAULT_CLEANED_SEVERITY_FILENAME
+    ingestion_report_path = processed_dir / DEFAULT_INGESTION_REPORT_FILENAME
+    cleaning_report_path = processed_dir / DEFAULT_CLEANING_REPORT_FILENAME
+
+    cleaning_result.frequency.to_csv(frequency_path, index=False)
+    cleaning_result.severity.to_csv(severity_path, index=False)
+
+    if ingestion_report is not None:
+        _write_json_report(ingestion_report_path, asdict(ingestion_report))
+    _write_json_report(cleaning_report_path, asdict(cleaning_result.report))
+
+    return ProcessedDataPaths(
+        frequency_path=frequency_path,
+        severity_path=severity_path,
+        ingestion_report_path=ingestion_report_path,
+        cleaning_report_path=cleaning_report_path,
+    )
+
+
+def run_cleaning_pipeline(
+    frequency_path: Path | str = DEFAULT_FREQUENCY_PATH,
+    severity_path: Path | str = DEFAULT_SEVERITY_PATH,
+    output_dir: Path | str = DEFAULT_PROCESSED_DIR,
+) -> ProcessedDataPaths:
+    ingested = load_raw_data(frequency_path, severity_path)
+    cleaned = clean_raw_data(ingested.frequency, ingested.severity)
+    return write_cleaned_data(cleaned, output_dir, ingestion_report=ingested.report)
+
+
+def _write_json_report(path: Path, payload: dict[str, object]) -> None:
+    path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Clean raw freMTPL2 CSVs and write processed outputs."
+    )
+    parser.add_argument(
+        "--frequency-path",
+        type=Path,
+        default=DEFAULT_FREQUENCY_PATH,
+        help=f"Frequency CSV path. Defaults to {DEFAULT_FREQUENCY_PATH}.",
+    )
+    parser.add_argument(
+        "--severity-path",
+        type=Path,
+        default=DEFAULT_SEVERITY_PATH,
+        help=f"Severity CSV path. Defaults to {DEFAULT_SEVERITY_PATH}.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=DEFAULT_PROCESSED_DIR,
+        help=f"Processed output directory. Defaults to {DEFAULT_PROCESSED_DIR}.",
+    )
+    return parser
+
+
+def main() -> None:
+    args = _build_parser().parse_args()
+    paths = run_cleaning_pipeline(args.frequency_path, args.severity_path, args.output_dir)
+    print(json.dumps(asdict(paths), indent=2, default=str))
+
+
+if __name__ == "__main__":
+    main()
