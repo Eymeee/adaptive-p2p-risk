@@ -8,10 +8,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.data.ingestion import DEFAULT_FREQUENCY_PATH
-from src.data.ingestion import DEFAULT_SEVERITY_PATH
-from src.data.ingestion import IngestionReport
-from src.data.ingestion import load_raw_data
+from src.data.ingestion import DEFAULT_FREQUENCY_PATH # pyrefly: ignore
+from src.data.ingestion import DEFAULT_SEVERITY_PATH # pyrefly: ignore
+from src.data.ingestion import IngestionReport # pyrefly: ignore
+from src.data.ingestion import load_raw_data # pyrefly: ignore
 
 CATEGORICAL_COLUMNS: tuple[str, ...] = ("VehBrand", "VehGas", "Area", "Region")
 EXPOSURE_CAP = 1.0
