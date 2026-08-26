@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=3.0.5",
+    "scikit-learn>=1.9.0",
 ]
 
 [dependency-groups]
