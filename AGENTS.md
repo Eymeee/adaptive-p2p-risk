@@ -14,37 +14,37 @@ fastest way to answer "where are we?" without re-reading the whole roadmap.
 - [x] **Phase 2 — Data Cleaning (FR-DM-02)**
 - [x] **Phase 3 — Pool Construction (FR-DM-03)** ⚠️ sign-off required first
   - [x] Implementation + reproducibility tests
-- [ ] **Phase 4 — Feature Engineering (FR-DM-04)**
-- [ ] **Phase 6 — Temporal Stream Simulation (FR-DM-05)**
-- [ ] **Phase 7 — Dataset Versioning (FR-DM-06)**
-- [ ] **Phase 8 — Risk Modeling**
+- [x] **Phase 4 — Feature Engineering (FR-DM-04)**
+- [ ] **Phase 5 — Temporal Stream Simulation (FR-DM-05)**
+- [ ] **Phase 6 — Dataset Versioning (FR-DM-06)**
+- [ ] **Phase 7 — Risk Modeling**
   - [ ] FR-RM-01 contract-level claim probability
   - [ ] FR-RM-02 pool-level aggregated score
   - [ ] FR-RM-03 anomaly / fraud-like detection
   - [ ] FR-RM-05 performance/interpretability trade-off documented
   - [ ] FR-RM-06 probability calibration
   - [ ] FR-RM-07 Gini / AUC / calibration error tracked
-- [ ] **Phase 9 — Continual Learning & Drift Detection** ⚠️ threshold sign-off required
+- [ ] **Phase 8 — Continual Learning & Drift Detection** ⚠️ threshold sign-off required
   - [ ] FR-CL-01 drift detector implemented
   - [ ] FR-CL-02 data drift vs. concept drift distinguished
   - [ ] FR-CL-03 incremental/continual learning strategy
   - [ ] FR-CL-04 sliding-window retraining
   - [ ] FR-CL-05 catastrophic forgetting mitigation
   - [ ] FR-CL-06 automated drift-triggered retraining thresholds
-- [ ] **Phase 10 — MLOps Pipeline**
+- [ ] **Phase 9 — MLOps Pipeline**
   - [ ] FR-ML-01 MLflow tracking
   - [ ] FR-ML-02 model registry
   - [ ] FR-ML-03 DVC artifact versioning
   - [ ] FR-ML-04 retraining orchestration
   - [ ] FR-ML-05 candidate validation gate
   - [ ] FR-ML-06 Kafka streaming simulation (Could — optional)
-- [ ] **Phase 11 — Deployment**
+- [ ] **Phase 10 — Deployment**
   - [ ] FR-DP-01 REST API endpoints
   - [ ] FR-DP-02 Dockerized
   - [ ] FR-DP-03 Kubernetes (Could — optional)
   - [ ] FR-DP-04 CI/CD
   - [ ] FR-DP-05 Streamlit demo
-- [ ] **Phase 12 — Monitoring & Traceability**
+- [ ] **Phase 11 — Monitoring & Traceability**
   - [ ] FR-MT-01 Grafana dashboards
   - [ ] FR-MT-02 Prometheus metrics
   - [ ] FR-MT-03 alerting
