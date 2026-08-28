@@ -24,13 +24,13 @@ fastest way to answer "where are we?" without re-reading the whole roadmap.
   - [x] FR-RM-05 performance/interpretability trade-off documented
   - [x] FR-RM-06 probability calibration
   - [x] FR-RM-07 Gini / AUC / calibration error tracked
-- [ ] **Phase 8 — Continual Learning & Drift Detection** ⚠️ threshold sign-off required
-  - [ ] FR-CL-01 drift detector implemented
-  - [ ] FR-CL-02 data drift vs. concept drift distinguished
-  - [ ] FR-CL-03 incremental/continual learning strategy
-  - [ ] FR-CL-04 sliding-window retraining
-  - [ ] FR-CL-05 catastrophic forgetting mitigation
-  - [ ] FR-CL-06 automated drift-triggered retraining thresholds
+- [x] **Phase 8 — Continual Learning & Drift Detection** ⚠️ threshold pending supervisor confirmation
+  - [x] FR-CL-01 drift detector implemented
+  - [x] FR-CL-02 data drift vs. concept drift distinguished
+  - [x] FR-CL-03 incremental/continual learning strategy
+  - [x] FR-CL-04 sliding-window retraining
+  - [x] FR-CL-05 catastrophic forgetting mitigation
+  - [x] FR-CL-06 automated drift-triggered retraining thresholds
 - [ ] **Phase 9 — MLOps Pipeline**
   - [ ] FR-ML-01 MLflow tracking
   - [ ] FR-ML-02 model registry

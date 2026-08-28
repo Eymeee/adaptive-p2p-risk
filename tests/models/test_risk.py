@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import pickle
 from pathlib import Path
 
 import numpy as np
@@ -168,6 +169,10 @@ def test_write_risk_modeling_artifacts_serializes_outputs(tmp_path: Path) -> Non
     assert paths.all_contract_predictions_path.exists()
     assert paths.pool_risk_scores_path.exists()
     assert paths.anomaly_scores_path.exists()
+    with paths.model_artifact_path.open("rb") as artifact_file:
+        artifact_payload = pickle.load(artifact_file)
+    assert isinstance(artifact_payload["report"], dict)
+    assert "feature_preprocessor" in artifact_payload
     report = json.loads(paths.report_path.read_text(encoding="utf-8"))
     assert report["target_choice_note"] == TARGET_CHOICE_NOTE
 

@@ -4,6 +4,7 @@ The contract model predicts `target_has_claim` because FR-RM-01 asks for claim
 probability. `target_claim_frequency` is a frequency/regression target and is
 kept out of the v1 classifier inputs to preserve the leakage boundary.
 """
+# pyrefly: ignore-errors[missing-import]
 
 from __future__ import annotations
 
@@ -165,6 +166,7 @@ class RiskModelingReport:
 @dataclass(frozen=True)
 class RiskModelingResult:
     classifier_model: Any
+    feature_preprocessor: ColumnTransformer
     anomaly_preprocessor: ColumnTransformer
     anomaly_model: IsolationForest
     contract_test_predictions: pd.DataFrame
@@ -211,6 +213,8 @@ def build_risk_models(
     classifier_model, calibration_cv_folds, calibration_skipped, calibration_note = (
         _fit_probability_model(X_train, y_train)
     )
+    feature_preprocessor = _build_preprocessor()
+    feature_preprocessor.fit(X_train)
     test_probabilities = _predict_positive_probability(classifier_model, X_test)
     all_probabilities = _predict_positive_probability(classifier_model, X)
 
@@ -291,6 +295,7 @@ def build_risk_models(
 
     return RiskModelingResult(
         classifier_model=classifier_model,
+        feature_preprocessor=feature_preprocessor,
         anomaly_preprocessor=anomaly_preprocessor,
         anomaly_model=anomaly_model,
         contract_test_predictions=contract_test_predictions,
@@ -319,9 +324,10 @@ def write_risk_modeling_artifacts(
         pickle.dump(
             {
                 "classifier_model": result.classifier_model,
+                "feature_preprocessor": result.feature_preprocessor,
                 "anomaly_preprocessor": result.anomaly_preprocessor,
                 "anomaly_model": result.anomaly_model,
-                "report": result.report,
+                "report": asdict(result.report),
             },
             artifact_file,
         )
