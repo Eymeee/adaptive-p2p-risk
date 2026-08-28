@@ -15,8 +15,8 @@ fastest way to answer "where are we?" without re-reading the whole roadmap.
 - [x] **Phase 3 — Pool Construction (FR-DM-03)** ⚠️ sign-off required first
   - [x] Implementation + reproducibility tests
 - [x] **Phase 4 — Feature Engineering (FR-DM-04)**
-- [ ] **Phase 5 — Temporal Stream Simulation (FR-DM-05)**
-- [ ] **Phase 6 — Dataset Versioning (FR-DM-06)**
+- [x] **Phase 5 — Temporal Stream Simulation (FR-DM-05)**
+- [x] **Phase 6 — Dataset Versioning (FR-DM-06)**
 - [ ] **Phase 7 — Risk Modeling**
   - [ ] FR-RM-01 contract-level claim probability
   - [ ] FR-RM-02 pool-level aggregated score
