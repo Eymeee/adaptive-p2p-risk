@@ -17,13 +17,13 @@ fastest way to answer "where are we?" without re-reading the whole roadmap.
 - [x] **Phase 4 — Feature Engineering (FR-DM-04)**
 - [x] **Phase 5 — Temporal Stream Simulation (FR-DM-05)**
 - [x] **Phase 6 — Dataset Versioning (FR-DM-06)**
-- [ ] **Phase 7 — Risk Modeling**
-  - [ ] FR-RM-01 contract-level claim probability
-  - [ ] FR-RM-02 pool-level aggregated score
-  - [ ] FR-RM-03 anomaly / fraud-like detection
-  - [ ] FR-RM-05 performance/interpretability trade-off documented
-  - [ ] FR-RM-06 probability calibration
-  - [ ] FR-RM-07 Gini / AUC / calibration error tracked
+- [x] **Phase 7 — Risk Modeling**
+  - [x] FR-RM-01 contract-level claim probability
+  - [x] FR-RM-02 pool-level aggregated score
+  - [x] FR-RM-03 anomaly / fraud-like detection
+  - [x] FR-RM-05 performance/interpretability trade-off documented
+  - [x] FR-RM-06 probability calibration
+  - [x] FR-RM-07 Gini / AUC / calibration error tracked
 - [ ] **Phase 8 — Continual Learning & Drift Detection** ⚠️ threshold sign-off required
   - [ ] FR-CL-01 drift detector implemented
   - [ ] FR-CL-02 data drift vs. concept drift distinguished

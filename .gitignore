@@ -13,4 +13,5 @@ wheels/
 # Project data and experiment artifacts
 data/raw/*
 data/processed/*
+artifacts/
 mlruns/
