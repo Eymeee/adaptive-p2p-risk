@@ -29,6 +29,38 @@ DEFAULT_POOL_FEATURES_FILENAME = "pool_features.csv"
 DEFAULT_POOL_TARGETS_FILENAME = "pool_targets.csv"
 DEFAULT_FEATURE_REPORT_FILENAME = "feature_engineering_report.json"
 
+CONTRACT_FEATURE_COLUMNS: tuple[str, ...] = (
+    "IDpol",
+    "pool_id",
+    "Exposure",
+    "VehPower",
+    "VehAge",
+    "DrivAge",
+    "BonusMalus",
+    "Density",
+    "Density_log1p",
+    "VehBrand",
+    "VehGas",
+    "Area",
+    "Region",
+    "VehAge_band",
+    "DrivAge_band",
+    "BonusMalus_band",
+    "Density_band",
+)
+SERVING_REQUIRED_CONTRACT_COLUMNS: tuple[str, ...] = (
+    "pool_id",
+    "Exposure",
+    "VehPower",
+    "VehAge",
+    "DrivAge",
+    "BonusMalus",
+    "VehBrand",
+    "VehGas",
+    "Area",
+    "Density",
+    "Region",
+)
 REQUIRED_FREQUENCY_COLUMNS: tuple[str, ...] = (
     "IDpol",
     "pool_id",
@@ -200,6 +232,23 @@ def build_features(
     )
 
 
+def build_serving_contract_features(contracts: pd.DataFrame) -> pd.DataFrame:
+    """Build contract features for inference using the Phase 4 feature policy.
+
+    Serving deliberately imports this helper instead of duplicating thresholds in
+    the API layer, so training and inference cannot drift apart when Phase 4
+    banding definitions change.
+    """
+    _validate_serving_contracts(contracts)
+    working_contracts = contracts.copy()
+    working_contracts["Density_log1p"] = np.log1p(working_contracts["Density"])
+    _add_bands(working_contracts)
+    output_columns = tuple(
+        column for column in CONTRACT_FEATURE_COLUMNS if column in working_contracts.columns
+    )
+    return working_contracts.loc[:, output_columns].copy()
+
+
 def write_feature_data(
     result: FeatureEngineeringResult,
     output_dir: Path | str = DEFAULT_PROCESSED_DIR,
@@ -258,6 +307,21 @@ def _validate_severity(severity: pd.DataFrame | None) -> None:
         )
 
 
+def _validate_serving_contracts(contracts: pd.DataFrame) -> None:
+    missing_columns = tuple(
+        column for column in SERVING_REQUIRED_CONTRACT_COLUMNS if column not in contracts.columns
+    )
+    if missing_columns:
+        raise FeatureEngineeringError(
+            "serving contracts are missing required columns: "
+            f"{', '.join(missing_columns)}"
+        )
+    if contracts.empty:
+        raise FeatureEngineeringError("serving contracts must contain at least one row")
+    if contracts.loc[:, SERVING_REQUIRED_CONTRACT_COLUMNS].isna().any().any():
+        raise FeatureEngineeringError("serving contract inputs must not contain missing values")
+
+
 def _add_bands(frequency: pd.DataFrame) -> None:
     for band_column, source_column in _BAND_SOURCE_COLUMNS.items():
         frequency[band_column] = pd.cut(
@@ -270,28 +334,7 @@ def _add_bands(frequency: pd.DataFrame) -> None:
 
 
 def _build_contract_features(frequency: pd.DataFrame) -> pd.DataFrame:
-    return frequency.loc[
-        :,
-        [
-            "IDpol",
-            "pool_id",
-            "Exposure",
-            "VehPower",
-            "VehAge",
-            "DrivAge",
-            "BonusMalus",
-            "Density",
-            "Density_log1p",
-            "VehBrand",
-            "VehGas",
-            "Area",
-            "Region",
-            "VehAge_band",
-            "DrivAge_band",
-            "BonusMalus_band",
-            "Density_band",
-        ],
-    ].copy()
+    return frequency.loc[:, CONTRACT_FEATURE_COLUMNS].copy()
 
 
 def _build_contract_targets(

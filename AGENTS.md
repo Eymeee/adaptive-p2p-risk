@@ -31,19 +31,17 @@ fastest way to answer "where are we?" without re-reading the whole roadmap.
   - [x] FR-CL-04 sliding-window retraining
   - [x] FR-CL-05 catastrophic forgetting mitigation
   - [x] FR-CL-06 automated drift-triggered retraining thresholds
-- [ ] **Phase 9 — MLOps Pipeline**
-  - [ ] FR-ML-01 MLflow tracking
-  - [ ] FR-ML-02 model registry
-  - [ ] FR-ML-03 DVC artifact versioning
-  - [ ] FR-ML-04 retraining orchestration
-  - [ ] FR-ML-05 candidate validation gate
-  - [ ] FR-ML-06 Kafka streaming simulation (Could — optional)
+- [x] **Phase 9 — MLOps Pipeline**
+  - [x] FR-ML-01 MLflow tracking
+  - [x] FR-ML-02 model registry
+  - [x] FR-ML-03 DVC artifact versioning
+  - [x] FR-ML-04 retraining orchestration
+  - [x] FR-ML-05 candidate validation gate
 - [ ] **Phase 10 — Deployment**
-  - [ ] FR-DP-01 REST API endpoints
+  - [x] FR-DP-01 REST API endpoints
   - [ ] FR-DP-02 Dockerized
-  - [ ] FR-DP-03 Kubernetes (Could — optional)
-  - [ ] FR-DP-04 CI/CD
-  - [ ] FR-DP-05 Streamlit demo
+  - [x] FR-DP-03 CI/CD
+  - [x] FR-DP-04 Streamlit demo
 - [ ] **Phase 11 — Monitoring & Traceability**
   - [ ] FR-MT-01 Grafana dashboards
   - [ ] FR-MT-02 Prometheus metrics

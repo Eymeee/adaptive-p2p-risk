@@ -1,0 +1,14 @@
+.git
+.dvc/cache
+.pytest_cache
+.venv
+__pycache__
+*.pyc
+build
+dist
+wheels
+*.egg-info
+data/raw
+data/processed
+artifacts
+mlruns

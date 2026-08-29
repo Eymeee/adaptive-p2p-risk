@@ -5,13 +5,21 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "fastapi>=0.141.1",
+    "mlflow>=1.27.0",
     "pandas>=3.0.5",
+    "protobuf<4",
     "scikit-learn>=1.9.0",
+    "setuptools<81",
+    "sqlalchemy<2",
+    "streamlit>=1.60.0",
+    "uvicorn[standard]>=0.52.4",
 ]
 
 [dependency-groups]
 dev = [
     "dvc>=3.67.1",
+    "httpx>=0.28.1",
     "pytest>=9.1.1",
 ]
 

@@ -121,6 +121,28 @@ uv run python -m src.data.pools        # FR-DM-03 — construct collaborative-in
 uv run python -m src.data.features     # FR-DM-04 — contract & pool feature/target tables
 uv run python -m src.data.streaming    # FR-DM-05 — temporal batches + injected drift
 uv run python -m src.data.versioning   # FR-DM-06 — DVC dataset snapshot + version report
+uv run python -m src.models.risk       # FR-RM-* — train risk and anomaly models
+uv run python -m src.continual.drift   # FR-CL-* — replay stream and detect drift
+uv run python -m src.mlops.pipeline    # FR-ML-* — track, validate, and promote candidates
+```
+
+Run the Phase 10 API and demo locally:
+
+```bash
+uv run uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+API_BASE_URL=http://localhost:8000 uv run streamlit run demo/app.py
+```
+
+The API serves validated artifacts only. It checks `MODEL_ARTIFACT_PATH` first,
+then a validated Phase 9 candidate, then the accepted Phase 7 reference model.
+Pool scoring currently supports member-list requests; pool-id-only lookup is
+deferred until a deployment database or feature store exists.
+
+Docker:
+
+```bash
+docker build -t adaptive-p2p-risk-api .
+docker compose up --build
 ```
 
 Every stage writes both its output artifacts and a JSON audit report to `data/processed/`, documenting exactly what was done (row counts, thresholds applied, modeling decisions made) — nothing is transformed silently.
@@ -147,11 +169,11 @@ Development follows a 12-phase roadmap defined in [`AGENTS.md`](./AGENTS.md), ea
 - [x] Phase 3 — Pool Construction (`FR-DM-03`)
 - [x] Phase 4 — Feature Engineering (`FR-DM-04`)
 - [x] Phase 5 — Temporal Stream Simulation (`FR-DM-05`)
-- [ ] Phase 6 — Dataset Versioning (`FR-DM-06`) — in progress
-- [ ] Phase 7 — Risk Modeling (`FR-RM-*`)
-- [ ] Phase 8 — Continual Learning & Drift Detection (`FR-CL-*`)
-- [ ] Phase 9 — MLOps Pipeline (`FR-ML-*`)
-- [ ] Phase 10 — Deployment (`FR-DP-*`)
+- [x] Phase 6 — Dataset Versioning (`FR-DM-06`)
+- [x] Phase 7 — Risk Modeling (`FR-RM-*`)
+- [x] Phase 8 — Continual Learning & Drift Detection (`FR-CL-*`)
+- [x] Phase 9 — MLOps Pipeline (`FR-ML-*`)
+- [ ] Phase 10 — Deployment (`FR-DP-*`) — implemented, Docker build verification blocked by local daemon permissions
 - [ ] Phase 11 — Monitoring & Traceability (`FR-MT-*`)
 
 See `AGENTS.md` for the full checklist, per-requirement breakdown, and the modeling decisions still pending supervisor sign-off.
