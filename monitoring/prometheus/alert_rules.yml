@@ -1,0 +1,50 @@
+groups:
+  - name: adaptive-p2p-risk-alerts
+    rules:
+      - alert: AdaptiveP2PModelUnavailable
+        expr: adaptive_p2p_model_loaded == 0
+        labels:
+          severity: critical
+        annotations:
+          summary: Validated serving model is unavailable
+          description: The API is running without a validated model artifact.
+
+      - alert: AdaptiveP2PDataDriftDetected
+        expr: adaptive_p2p_data_drift_detected == 1
+        labels:
+          severity: warning
+        annotations:
+          summary: Data drift detected in Phase 8
+          description: Phase 8 reported a data-drift detection event.
+
+      - alert: AdaptiveP2PConceptDriftDetected
+        expr: adaptive_p2p_concept_drift_detected == 1
+        labels:
+          severity: warning
+        annotations:
+          summary: Concept drift detected in Phase 8
+          description: Phase 8 reported a concept-drift detection event.
+
+      - alert: AdaptiveP2PRetrainingValidationFailed
+        expr: adaptive_p2p_retraining_requested == 1 and adaptive_p2p_candidate_validation_passed == 0
+        labels:
+          severity: warning
+        annotations:
+          summary: Retraining was requested but validation did not pass
+          description: Phase 9 did not validate a candidate after retraining was requested.
+
+      - alert: AdaptiveP2PTraceLoggingDisabled
+        expr: adaptive_p2p_trace_logging_enabled == 0
+        labels:
+          severity: warning
+        annotations:
+          summary: Decision trace logging is disabled
+          description: TRACE_HASH_SALT is unset and TRACE_DEV_MODE=true was not provided.
+
+      - alert: AdaptiveP2PTraceLoggingFailures
+        expr: adaptive_p2p_trace_log_failures_total > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: Decision trace logging failed
+          description: The API could not write at least one decision trace record.

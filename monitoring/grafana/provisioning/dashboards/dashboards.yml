@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: adaptive-p2p-risk
+    orgId: 1
+    folder: Adaptive P2P Risk
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

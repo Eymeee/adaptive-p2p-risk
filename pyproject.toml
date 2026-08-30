@@ -8,6 +8,7 @@ dependencies = [
     "fastapi>=0.141.1",
     "mlflow>=1.27.0",
     "pandas>=3.0.5",
+    "prometheus-client>=0.26.0",
     "protobuf<4",
     "scikit-learn>=1.9.0",
     "setuptools<81",

@@ -37,17 +37,17 @@ fastest way to answer "where are we?" without re-reading the whole roadmap.
   - [x] FR-ML-03 DVC artifact versioning
   - [x] FR-ML-04 retraining orchestration
   - [x] FR-ML-05 candidate validation gate
-- [ ] **Phase 10 — Deployment**
+- [x] **Phase 10 — Deployment**
   - [x] FR-DP-01 REST API endpoints
-  - [ ] FR-DP-02 Dockerized
+  - [x] FR-DP-02 Dockerized
   - [x] FR-DP-03 CI/CD
   - [x] FR-DP-04 Streamlit demo
-- [ ] **Phase 11 — Monitoring & Traceability**
-  - [ ] FR-MT-01 Grafana dashboards
-  - [ ] FR-MT-02 Prometheus metrics
-  - [ ] FR-MT-03 alerting
-  - [ ] FR-MT-04 full traceability
-  - [ ] FR-MT-05 retraining cycle logging
+- [x] **Phase 11 — Monitoring & Traceability**
+  - [x] FR-MT-01 Grafana dashboards
+  - [x] FR-MT-02 Prometheus metrics
+  - [x] FR-MT-03 alerting
+  - [x] FR-MT-04 full traceability
+  - [x] FR-MT-05 retraining cycle logging
 
 ## 1. Project Overview
 

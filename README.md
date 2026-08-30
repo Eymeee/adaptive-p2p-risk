@@ -124,6 +124,7 @@ uv run python -m src.data.versioning   # FR-DM-06 — DVC dataset snapshot + ver
 uv run python -m src.models.risk       # FR-RM-* — train risk and anomaly models
 uv run python -m src.continual.drift   # FR-CL-* — replay stream and detect drift
 uv run python -m src.mlops.pipeline    # FR-ML-* — track, validate, and promote candidates
+uv run python -m src.monitoring.traceability  # FR-MT-* — monitoring and traceability reports
 ```
 
 Run the Phase 10 API and demo locally:
@@ -138,12 +139,28 @@ then a validated Phase 9 candidate, then the accepted Phase 7 reference model.
 Pool scoring currently supports member-list requests; pool-id-only lookup is
 deferred until a deployment database or feature store exists.
 
-Docker:
+Docker and monitoring:
 
 ```bash
-docker build -t adaptive-p2p-risk-api .
 docker compose up --build
 ```
+
+The Compose setup mounts Phase 7/9 artifacts read-only and keeps
+`artifacts/phase10/` and `artifacts/phase11/` writable so the API can emit
+deployment and decision-trace reports.
+
+Local service ports:
+
+- API: `http://localhost:8000`
+- Streamlit demo: `http://localhost:8501`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000` (`admin` / `admin`)
+
+Decision trace logging never stores raw payloads. For reproducible secure
+fingerprints, set `TRACE_HASH_SALT`. The Compose dev stack sets
+`TRACE_DEV_MODE=true`, which uses an ephemeral random salt for local demo
+runs only; without either setting, decision trace logging is disabled rather
+than falling back to a fixed weak salt.
 
 Every stage writes both its output artifacts and a JSON audit report to `data/processed/`, documenting exactly what was done (row counts, thresholds applied, modeling decisions made) — nothing is transformed silently.
 
@@ -173,8 +190,8 @@ Development follows a 12-phase roadmap defined in [`AGENTS.md`](./AGENTS.md), ea
 - [x] Phase 7 — Risk Modeling (`FR-RM-*`)
 - [x] Phase 8 — Continual Learning & Drift Detection (`FR-CL-*`)
 - [x] Phase 9 — MLOps Pipeline (`FR-ML-*`)
-- [ ] Phase 10 — Deployment (`FR-DP-*`) — implemented, Docker build verification blocked by local daemon permissions
-- [ ] Phase 11 — Monitoring & Traceability (`FR-MT-*`)
+- [x] Phase 10 — Deployment (`FR-DP-*`)
+- [x] Phase 11 — Monitoring & Traceability (`FR-MT-*`)
 
 See `AGENTS.md` for the full checklist, per-requirement breakdown, and the modeling decisions still pending supervisor sign-off.
 
