@@ -2,208 +2,202 @@
 
 **Adaptive Risk Management System: MLOps and Continual Learning for Collaborative Insurance**
 
-A machine learning system that continuously re-evaluates insurance risk — at both the individual **contract** level and the collective **pool** level — for a collaborative (peer-to-peer) insurance setting, using continual learning and drift detection to stay accurate as data evolves.
+Adaptive P2P Risk is an academic MLOps project for collaborative insurance risk scoring. It builds a full local pipeline that prepares the freMTPL2 motor insurance dataset, constructs synthetic peer-to-peer pools, trains calibrated risk models, simulates temporal drift, validates retraining candidates, and serves the selected model through a monitored API.
 
-> PFA (Projet de Fin d'Année) summer internship — ENSIAS (Ingénierie Intelligence Artificielle, 2IA) × Smart Automation Technologies, July–August 2026.
+> PFA internship project - ENSIAS 2IA x Smart Automation Technologies, July-August 2026.
 
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
-[![Status](https://img.shields.io/badge/status-in%20development-yellow)]()
-[![License](https://img.shields.io/badge/license-academic%20project-lightgrey)]()
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![Status](https://img.shields.io/badge/status-implemented-brightgreen)
+![Package Manager](https://img.shields.io/badge/package%20manager-uv-purple)
+![License](https://img.shields.io/badge/license-academic%20project-lightgrey)
 
----
+## What This Project Does
 
-## Table of Contents
+The system scores insurance risk at two levels:
 
-- [Adaptive P2P Risk](#adaptive-p2p-risk)
-  - [Table of Contents](#table-of-contents)
-  - [Context](#context)
-  - [Problem Statement](#problem-statement)
-  - [Architecture](#architecture)
-  - [Dataset](#dataset)
-  - [Repository Structure](#repository-structure)
-  - [Getting Started](#getting-started)
-  - [Usage](#usage)
-  - [Tech Stack](#tech-stack)
-  - [Project Status](#project-status)
-  - [Documentation](#documentation)
+- **Contract level:** claim probability for an individual policy.
+- **Pool level:** aggregated risk score for a peer-to-peer insurance pool.
 
-## Context
+It also keeps the model lifecycle auditable:
 
-Collaborative (peer-to-peer) insurance lets groups of policyholders share risk directly with one another through a digital platform, instead of transferring it entirely to a centralized insurer. Because pools are continuously reshuffled and policyholder behavior evolves, a risk model trained once and left static quickly becomes inaccurate — both at the individual contract level and at the level of the pool as a whole.
-
-This project builds a system that keeps re-evaluating itself: it detects when the data it sees no longer matches what it was trained on (data drift) or when the underlying relationship between risk factors and claims has changed (concept drift), and retrains automatically when that happens — packaged as a full MLOps pipeline rather than a one-off notebook.
-
-The project is carried out at **Smart Automation Technologies** (Tangier), supervised by **Dr. Amina Jbilou** (Intelligent Automation & BioMed Genomics Laboratory), with **Pr. A. El Afia** (ENSIAS) as academic supervisor.
-
-## Problem Statement
-
-> How can a risk management system be designed to continuously re-evaluate itself, at both the individual contract level and the collective pool level, in the face of data that evolves over time?
+- raw data validation and cleaning reports;
+- reproducible pool construction and feature engineering;
+- DVC dataset snapshot metadata;
+- calibrated model training reports;
+- drift detection against a known synthetic stream;
+- MLflow tracking and local registry promotion attempts;
+- Dockerized FastAPI and Streamlit deployment;
+- Prometheus metrics, Grafana dashboard provisioning, and risk-decision trace logs.
 
 ## Architecture
 
-The system is a continuous MLOps pipeline made of five blocks, structured as a **closed feedback loop** rather than a linear sequence:
-
 ```mermaid
 flowchart LR
-    A[1. Data Preparation] --> B[2. Modeling]
-    B --> C[3. MLOps Pipeline]
-    C --> D[4. Deployment]
-    D --> E[5. Monitoring]
-    E -- drift detected --> C
-    C -- retrained & validated --> D
+    A[Data Preparation] --> B[Risk Modeling]
+    B --> C[MLOps Pipeline]
+    C --> D[Deployment]
+    D --> E[Monitoring]
+    E -- drift or degradation --> C
+    C -- validated model --> D
 ```
 
-| # | Block | Role |
-|---|-------|------|
-| 1 | **Data Preparation** | Contract/pool structuring, feature engineering, temporal stream simulation |
-| 2 | **Modeling** | Risk-scoring and claim-prediction models, contract and pool level |
-| 3 | **MLOps Pipeline** | Experiment tracking, model registry, retraining orchestration |
-| 4 | **Deployment** | REST API + demo interface, containerized |
-| 5 | **Monitoring** | Drift detection, traceability, alerting — the only component authorized to trigger retraining |
-
-Full requirements (34 functional + 8 non-functional, MoSCoW-prioritized) live in the project's **Cahier des Charges Techniques (CdCT)** — see [Documentation](#documentation).
+| Block | Main Modules | Purpose |
+|---|---|---|
+| Data preparation | `src/data/*` | Ingestion, cleaning, pool construction, features, streaming, DVC version report |
+| Risk modeling | `src/models/risk.py` | Contract claim model, pool scores, anomaly scores |
+| Continual learning | `src/continual/drift.py` | PSI/residual drift detection and sliding-window retraining signals |
+| MLOps | `src/mlops/pipeline.py` | MLflow run tracking, candidate validation, local registry promotion |
+| Deployment | `src/api/app.py`, `demo/app.py` | FastAPI scoring service and Streamlit demo |
+| Monitoring | `src/monitoring/*`, `monitoring/` | Prometheus metrics, Grafana dashboards, alerts, traceability reports |
 
 ## Dataset
 
-The working base dataset is **[freMTPL2](https://huggingface.co/datasets/mabilton/fremtpl2)** — French motor third-party liability insurance, frequency + severity files (~678k policies, ~26.6k claims). It provides realistic individual risk attributes but does **not** natively include a collaborative-insurance pool structure or a temporal drift signal — both are constructed by this project's data pipeline (see `src/data/pools.py` and `src/data/streaming.py`).
+The project uses **freMTPL2**, a French motor third-party liability insurance dataset with separate frequency and severity files:
 
-Real data files are **not** committed to this repository (see `data/raw/.gitignore`). Download `freMTPL2freq.csv` and `freMTPL2sev.csv` from the link above and place them in `data/raw/` before running the pipeline.
+- `freMTPL2freq.csv`: 678,013 policies with exposure, vehicle, driver, region, and claim count fields.
+- `freMTPL2sev.csv`: 26,639 claim records with claim amounts.
 
-## Repository Structure
+The dataset does not contain collaborative-insurance pools or temporal drift signals. This repository constructs both:
 
+- pools are simulated with deterministic clustering in Phase 3;
+- temporal batches and drift ground truth are simulated in Phase 5.
+
+Real CSVs are not committed. Place them manually in:
+
+```text
+data/raw/freMTPL2freq.csv
+data/raw/freMTPL2sev.csv
 ```
+
+## Repository Layout
+
+```text
 adaptive-p2p-risk/
 ├── data/
-│   ├── raw/              # gitignored — place freMTPL2 CSVs here
-│   └── processed/        # gitignored — pipeline outputs, DVC-tracked
+│   ├── raw/                 # gitignored input CSVs
+│   └── processed/           # gitignored generated data artifacts
+├── artifacts/               # gitignored model, MLOps, deployment, monitoring outputs
 ├── src/
-│   ├── data/              # ingestion, cleaning, pools, features, streaming, versioning
-│   ├── models/             # contract & pool risk models
-│   ├── continual/          # drift detection, incremental learning
-│   ├── mlops/               # MLflow/DVC integration, retraining orchestration
-│   ├── api/                  # FastAPI app
-│   └── monitoring/          # Prometheus/Grafana hooks, alerting, logging
-├── tests/                  # mirrors src/ structure
-├── notebooks/               # exploration only, not a dependency of src/
-├── demo/                    # Streamlit demo app
-├── .github/workflows/        # CI/CD
-├── AGENTS.md                 # implementation roadmap & conventions for coding agents
-├── requirements.txt
+│   ├── data/                # Phases 1-6
+│   ├── models/              # Phase 7
+│   ├── continual/           # Phase 8
+│   ├── mlops/               # Phase 9
+│   ├── api/                 # Phase 10
+│   └── monitoring/          # Phase 11
+├── tests/                   # synthetic-data test suite
+├── demo/                    # Streamlit demo
+├── monitoring/              # Prometheus and Grafana configuration
+├── .github/workflows/       # CI
+├── AGENTS.md                # project roadmap and implementation rules
+├── Guide.md                 # operational phase-by-phase guide
+├── pyproject.toml
+├── uv.lock
 └── README.md
 ```
 
-## Getting Started
+## Quick Start
+
+Install dependencies with uv:
 
 ```bash
-# Clone the repository
-git clone https://github.com/Eymeee/adaptive-p2p-risk.git
-cd adaptive-p2p-risk
+uv sync --all-groups
+```
 
-# Install dependencies (uv)
-uv sync
+Run the test suite:
 
-# Download freMTPL2freq.csv and freMTPL2sev.csv from
-# https://huggingface.co/datasets/mabilton/fremtpl2
-# and place them in data/raw/
-
-# Run the test suite (uses synthetic mock data, no real CSVs required)
+```bash
 uv run pytest
 ```
 
-## Usage
-
-Each data pipeline stage can be run independently as a CLI module:
+Place the freMTPL2 CSVs in `data/raw/`, then run the full local pipeline:
 
 ```bash
-uv run python -m src.data.ingestion    # FR-DM-01 — load & validate raw CSVs
-uv run python -m src.data.cleaning     # FR-DM-02 — resolve known data-quality issues
-uv run python -m src.data.pools        # FR-DM-03 — construct collaborative-insurance pools
-uv run python -m src.data.features     # FR-DM-04 — contract & pool feature/target tables
-uv run python -m src.data.streaming    # FR-DM-05 — temporal batches + injected drift
-uv run python -m src.data.versioning   # FR-DM-06 — DVC dataset snapshot + version report
-uv run python -m src.models.risk       # FR-RM-* — train risk and anomaly models
-uv run python -m src.continual.drift   # FR-CL-* — replay stream and detect drift
-uv run python -m src.mlops.pipeline    # FR-ML-* — track, validate, and promote candidates
-uv run python -m src.monitoring.traceability  # FR-MT-* — monitoring and traceability reports
+uv run python -m src.data.cleaning
+uv run python -m src.data.pools
+uv run python -m src.data.features
+uv run python -m src.data.streaming
+uv run python -m src.data.versioning
+uv run python -m src.models.risk
+uv run python -m src.continual.drift
+uv run python -m src.mlops.pipeline --dvc-status-check
+uv run python -m src.monitoring.traceability
 ```
 
-Run the Phase 10 API and demo locally:
+For the complete phase-by-phase explanation, inputs, outputs, and optional flags, see [Guide.md](./Guide.md).
+
+## Running the API and Demo
+
+Run locally without Docker:
 
 ```bash
 uv run uvicorn src.api.app:app --host 0.0.0.0 --port 8000
 API_BASE_URL=http://localhost:8000 uv run streamlit run demo/app.py
 ```
 
-The API serves validated artifacts only. It checks `MODEL_ARTIFACT_PATH` first,
-then a validated Phase 9 candidate, then the accepted Phase 7 reference model.
-Pool scoring currently supports member-list requests; pool-id-only lookup is
-deferred until a deployment database or feature store exists.
-
-Docker and monitoring:
+Run the Docker Compose stack:
 
 ```bash
 docker compose up --build
 ```
 
-The Compose setup mounts Phase 7/9 artifacts read-only and keeps
-`artifacts/phase10/` and `artifacts/phase11/` writable so the API can emit
-deployment and decision-trace reports.
+Services:
 
-Local service ports:
+| Service | URL | Notes |
+|---|---|---|
+| FastAPI | `http://localhost:8000` | `/health`, `/model/version`, `/metrics`, `/score/contract`, `/score/pool` |
+| Streamlit demo | `http://localhost:8501` | UI wrapper around the API |
+| Prometheus | `http://localhost:9090` | Scrapes API metrics |
+| Grafana | `http://localhost:3000` | Login: `admin` / `admin` |
 
-- API: `http://localhost:8000`
-- Streamlit demo: `http://localhost:8501`
-- Prometheus: `http://localhost:9090`
-- Grafana: `http://localhost:3000` (`admin` / `admin`)
+The API resolves the serving model in this order:
 
-Decision trace logging never stores raw payloads. For reproducible secure
-fingerprints, set `TRACE_HASH_SALT`. The Compose dev stack sets
-`TRACE_DEV_MODE=true`, which uses an ephemeral random salt for local demo
-runs only; without either setting, decision trace logging is disabled rather
-than falling back to a fixed weak salt.
+1. `MODEL_ARTIFACT_PATH` environment override;
+2. validated Phase 9 retrained candidate;
+3. accepted Phase 7 reference model.
 
-Every stage writes both its output artifacts and a JSON audit report to `data/processed/`, documenting exactly what was done (row counts, thresholds applied, modeling decisions made) — nothing is transformed silently.
+Decision tracing is privacy-aware. The API does not log full request or response payloads. For reproducible salted fingerprints, set `TRACE_HASH_SALT`. For local demos only, Compose sets `TRACE_DEV_MODE=true`, which uses an ephemeral per-process salt. If neither variable is set, decision trace logging is disabled instead of falling back to a weak fixed salt.
 
-## Tech Stack
+## Current Status
 
-| Category | Tools |
+All roadmap phases in [AGENTS.md](./AGENTS.md) are implemented and tested for the approved scope:
+
+- Phases 0-6: data preparation and dataset versioning.
+- Phase 7: calibrated contract-risk model, pool scores, anomaly scores.
+- Phase 8: data/concept drift detection and retraining-event generation.
+- Phase 9: MLflow tracking, candidate validation, local registry attempt.
+- Phase 10: FastAPI, Docker, CI, Streamlit demo.
+- Phase 11: Prometheus metrics, Grafana dashboard, alert rules, traceability logs.
+
+Known scope notes:
+
+- Phase 3 pool methodology and Phase 8 drift latency threshold remain documented as supervisor sign-off items.
+- Kafka streaming simulation and Kubernetes orchestration are optional Could items and are intentionally deferred.
+- `/score/pool` supports member-list scoring. Pool-id-only lookup is deferred until a database or feature store exists.
+
+Latest verification in this workspace:
+
+```text
+98 passed
+```
+
+## Main Technologies
+
+| Area | Tools |
 |---|---|
-| Language & data | Python, NumPy, Pandas |
-| Machine Learning | Scikit-learn, XGBoost, PyTorch / TensorFlow |
-| MLOps | MLflow, DVC, Apache Kafka, Kubeflow |
-| Deployment | Docker, Kubernetes, FastAPI |
-| Monitoring | Prometheus, Grafana |
-| Visualization / demo | Plotly, Streamlit |
-| CI/CD | GitHub Actions |
-
-## Project Status
-
-Development follows a 12-phase roadmap defined in [`AGENTS.md`](./AGENTS.md), each phase tied to specific requirements from the CdCT.
-
-- [x] Phase 0 — Repo & Environment Setup
-- [x] Phase 1 — Data Ingestion (`FR-DM-01`)
-- [x] Phase 2 — Data Cleaning (`FR-DM-02`)
-- [x] Phase 3 — Pool Construction (`FR-DM-03`)
-- [x] Phase 4 — Feature Engineering (`FR-DM-04`)
-- [x] Phase 5 — Temporal Stream Simulation (`FR-DM-05`)
-- [x] Phase 6 — Dataset Versioning (`FR-DM-06`)
-- [x] Phase 7 — Risk Modeling (`FR-RM-*`)
-- [x] Phase 8 — Continual Learning & Drift Detection (`FR-CL-*`)
-- [x] Phase 9 — MLOps Pipeline (`FR-ML-*`)
-- [x] Phase 10 — Deployment (`FR-DP-*`)
-- [x] Phase 11 — Monitoring & Traceability (`FR-MT-*`)
-
-See `AGENTS.md` for the full checklist, per-requirement breakdown, and the modeling decisions still pending supervisor sign-off.
+| Environment | Python 3.11+, uv |
+| Data | pandas, NumPy |
+| Modeling | scikit-learn |
+| Versioning and tracking | DVC, MLflow |
+| API and demo | FastAPI, Uvicorn, Streamlit |
+| Monitoring | prometheus-client, Prometheus, Grafana |
+| Delivery | Docker, Docker Compose, GitHub Actions |
 
 ## Documentation
 
-The full set of project deliverables (technical specifications, dataset documentation, related work, architecture diagrams) is maintained alongside this codebase:
-
-- **Cahier des Charges Techniques (CdCT)** — full functional & non-functional requirements
-- **Dataset Documentation** — freMTPL2 structure, known data-quality issues, cleaning conventions
-- **Related Work** — collaborative insurance risk-sharing literature
-- **AGENTS.md** — implementation roadmap and conventions for this repository
+- [Guide.md](./Guide.md): operational guide with every phase, command, and output.
+- [AGENTS.md](./AGENTS.md): implementation roadmap, conventions, and progress checklist.
+- JSON reports in `data/processed/` and `artifacts/`: auditable outputs for each phase.
 
 ---
 
-<p align="center"><sub>SALHI Aymane — ENSIAS 2IA — PFA Internship 2026</sub></p>
+<p align="center"><sub>SALHI Aymane - ENSIAS 2IA - PFA Internship 2026</sub></p>
