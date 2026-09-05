@@ -12,7 +12,7 @@ fastest way to answer "where are we?" without re-reading the whole roadmap.
 - [x] **Phase 0 — Repo & Environment Setup**
 - [x] **Phase 1 — Data Ingestion (FR-DM-01)**
 - [x] **Phase 2 — Data Cleaning (FR-DM-02)**
-- [x] **Phase 3 — Pool Construction (FR-DM-03)** ⚠️ sign-off required first
+- [x] **Phase 3 — Pool Construction (FR-DM-03)**
   - [x] Implementation + reproducibility tests
 - [x] **Phase 4 — Feature Engineering (FR-DM-04)**
 - [x] **Phase 5 — Temporal Stream Simulation (FR-DM-05)**
@@ -24,7 +24,7 @@ fastest way to answer "where are we?" without re-reading the whole roadmap.
   - [x] FR-RM-05 performance/interpretability trade-off documented
   - [x] FR-RM-06 probability calibration
   - [x] FR-RM-07 Gini / AUC / calibration error tracked
-- [x] **Phase 8 — Continual Learning & Drift Detection** ⚠️ threshold pending supervisor confirmation
+- [x] **Phase 8 — Continual Learning & Drift Detection** 
   - [x] FR-CL-01 drift detector implemented
   - [x] FR-CL-02 data drift vs. concept drift distinguished
   - [x] FR-CL-03 incremental/continual learning strategy
